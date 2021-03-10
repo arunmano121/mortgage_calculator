@@ -1,4 +1,9 @@
-#!/usr/bin/env/ python3
+#!/usr/bin/env python3
+
+__authors__ = 'Arun Manohar'
+__license__ = '3-clause BSD'
+__maintainer__ = 'Arun Manohar'
+__email__ = 'arunmano121@outlook.com'
 
 # modules necessary to write out excel files
 import xlsxwriter
@@ -9,8 +14,37 @@ def write_excel(title, month, interest, principal, out_principal,
                 home_val, down_pay, loan_amt,
                 tot_int, tot_prop_tax, tot_home_ins, tot_hoa, tot_payment,
                 int_loan_rat, int_7yr, int_7yr_tot_rat, out_prin_7yr):
+    '''
+    write out payment schedule into excel sheet
 
-    '''writing out payment schedule into excel sheet'''
+    Parameters:
+    ----------
+    - title: name of the excel file
+    - month: numeric month
+    - interest: interest component of the monthly payment
+    - principal: principal component of the monthly payment
+    - out_principal: outstanding principal component that is owed to bank
+    - mon_hoa: monthly HOA and Mello-Roos fees
+    - mon_home_ins: monthly home insurance
+    - mon_prop_tax: monthly property tax
+    - mon_payment: total monthly payment
+    - home_val: value of home
+    - down_pay: downpayment at time of purchase
+    - loan_amt: outstanding loan amount
+    - tot_int: total interest paid over life of loan
+    - tot_prop_tax: total property tax over life of loan
+    - tot_home_ins: total home insurance over life of loan
+    - tot_hoa: total HOA and Mello-Roos over life of loan
+    - tot_payment: total payment over life of loan
+    - int_loan_rat: interest to loan amount ratio
+    - int_7yr: interest paid over the first 7 years of loan
+    - int_7yr_tot_rat: ratio of interest paid over 7 years to life time
+    - out_prin_7yr: outstanding principal remaining after 7 years
+
+    Returns:
+    -------
+    None
+    '''
 
     # file name to write out
     workbook = xlsxwriter.Workbook(title)
@@ -75,8 +109,21 @@ def write_excel(title, month, interest, principal, out_principal,
 
 
 def calc_mon_payment(outstanding_principal, months, int_rate):
+    '''
+    calculate monthly payment including interest and principal
 
-    '''calculates monthly payment including interest and principal'''
+    Parameters:
+    ----------
+    - outstanding_principal: outstanding principal amount owed to bank
+    - months: number of remaining months in loan
+    - int_rate: fixed interest rate
+
+    Returns:
+    -------
+    - payment: total monthly payment to bank
+    - interest: interest component in the monthly payment
+    - principal: principal component in the monthly payment
+    '''
 
     # monthly payment not including home ins and property tax and HOA
     # this only includes the loan amount based payment that is due to bank
@@ -93,8 +140,23 @@ def calc_mon_payment(outstanding_principal, months, int_rate):
 
 
 def calc_schedule(loan_amt, years, int_rate):
+    '''
+    Calculate schedule of payments month over month
 
-    '''calculating schedule of payments month over month'''
+    Parameters:
+    ----------
+    - loan_amt: outstanding loan amount
+    - years: number of years in the loan
+    - int_rate: fixed interest rate at start of the loan
+
+    Returns:
+    -------
+    - pay_h - monthly total payment to bank
+    - interest_h - monthly interest component to bank
+    - principal_h - monthly principal component to bank
+    - month_h - month of payment in numbers 1, 2, 3... etc.
+    - out_principal_h - outstanding principal after current monthly payment
+    '''
 
     pay_h = []
     interest_h = []
@@ -131,9 +193,13 @@ def calc_schedule(loan_amt, years, int_rate):
 
 
 def main():
-    '''This program calculates the schedule of payments given mortgage
-    parameters. It outputs the monthly schedule of payments to an excel
-    file.'''
+    '''Calculates the schedule of payments given mortgage parameters.
+
+    The parameters that are involved in calculating the monthly parameters
+    are home value, down payment, loan term, interest rate, monthly HOA,
+    property tax and home insurance which are roughly based on the property
+    tax rates (1.25%). The monthly schedule of payments are output to an
+    excel file.'''
 
     # home value
     home_val = float(input('Home value (Million): '))
@@ -160,7 +226,7 @@ def main():
 
     # calculate the schedule of payments
     print('-'*80)
-    print(calc_schedule.__doc__)
+    print('calculating schedule of payments month over month...')
     print('-'*80)
     pay_h, interest_h, principal_h, month_h, out_principal_h = \
         calc_schedule(loan_amt, years, int_rate)
@@ -214,7 +280,7 @@ def main():
 
     # write the breakdown into excel file
     print('-'*80)
-    print(write_excel.__doc__)
+    print('writing out payment schedule into excel sheet...')
     print('-'*80)
 
     # title for the excel file
