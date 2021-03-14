@@ -17,33 +17,50 @@ def write_excel(title, month, interest, principal, out_principal,
     '''
     write out payment schedule into excel sheet
 
-    Parameters:
-    ----------
-    - title: name of the excel file
-    - month: numeric month
-    - interest: interest component of the monthly payment
-    - principal: principal component of the monthly payment
-    - out_principal: outstanding principal component that is owed to bank
-    - mon_hoa: monthly HOA and Mello-Roos fees
-    - mon_home_ins: monthly home insurance
-    - mon_prop_tax: monthly property tax
-    - mon_payment: total monthly payment
-    - home_val: value of home
-    - down_pay: downpayment at time of purchase
-    - loan_amt: outstanding loan amount
-    - tot_int: total interest paid over life of loan
-    - tot_prop_tax: total property tax over life of loan
-    - tot_home_ins: total home insurance over life of loan
-    - tot_hoa: total HOA and Mello-Roos over life of loan
-    - tot_payment: total payment over life of loan
-    - int_loan_rat: interest to loan amount ratio
-    - int_7yr: interest paid over the first 7 years of loan
-    - int_7yr_tot_rat: ratio of interest paid over 7 years to life time
-    - out_prin_7yr: outstanding principal remaining after 7 years
+    :param title: name of the excel file
+    :type title: str
+    :param month: numeric month
+    :type month: int
+    :param interest: interest component of the monthly payment
+    :type interest: float
+    :param principal: principal component of the monthly payment
+    :type principal: float
+    :param out_principal: outstanding principal component owed to bank
+    :type out_principal: float
+    :param mon_hoa: monthly HOA and Mello-Roos fees
+    :type mon_hoa: float
+    :param mon_home_ins: monthly home insurance
+    :type mon_home_ins: float
+    :param mon_prop_tax: monthly property tax
+    :type mon_prop_tax: float
+    :param mon_payment: total monthly payment
+    :type mon_payment: float
+    :param home_val: value of home
+    :type home_val: float
+    :param down_pay: downpayment at time of purchase
+    :type down_pay: float
+    :param loan_amt: outstanding loan amount
+    :type loan_amt: float
+    :param tot_int: total interest paid over life of loan
+    :type tot_int: float
+    :param tot_prop_tax: total property tax over life of loan
+    :type tot_prop_tax: float
+    :param tot_home_ins: total home insurance over life of loan
+    :type tot_home_ins: float
+    :param tot_hoa: total HOA and Mello-Roos over life of loan
+    :type tot_hoa: float
+    :param tot_payment: total payment over life of loan
+    :type tot_payment: float
+    :param int_loan_rat: interest to loan amount ratio
+    :type int_loan_rat: float
+    :param int_7yr: interest paid over the first 7 years of loan
+    :type int_7yr: float
+    :param int_7yr_tot_rat: ratio of interest paid over 7 years to life time
+    :type int_7yr_tot_rat: float
+    :param out_prin_7yr: outstanding principal remaining after 7 years
+    :type out_prin_7yr: float
 
-    Returns:
-    -------
-    None
+    :return: None
     '''
 
     # file name to write out
@@ -112,17 +129,17 @@ def calc_mon_payment(outstanding_principal, months, int_rate):
     '''
     calculate monthly payment including interest and principal
 
-    Parameters:
-    ----------
-    - outstanding_principal: outstanding principal amount owed to bank
-    - months: number of remaining months in loan
-    - int_rate: fixed interest rate
+    :param outstanding_principal: outstanding principal amount owed to bank
+    :type outstanding_principal: float
+    :param months: number of remaining months in loan
+    :type months: int
+    :param int_rate: fixed interest rate
+    :type int_rate: float
 
-    Returns:
-    -------
-    - payment: total monthly payment to bank
-    - interest: interest component in the monthly payment
-    - principal: principal component in the monthly payment
+    :return: [payment, interest, principal] - list containing total monthly
+        payment to bank, interest component in the monthly payment,
+        principal component in the monthly payment
+    :rtype: list
     '''
 
     # monthly payment not including home ins and property tax and HOA
@@ -136,26 +153,26 @@ def calc_mon_payment(outstanding_principal, months, int_rate):
     # principal component
     principal = payment - interest
 
-    return payment, interest, principal
+    return [payment, interest, principal]
 
 
 def calc_schedule(loan_amt, years, int_rate):
     '''
     Calculate schedule of payments month over month
 
-    Parameters:
-    ----------
-    - loan_amt: outstanding loan amount
-    - years: number of years in the loan
-    - int_rate: fixed interest rate at start of the loan
+    :param loan_amt: outstanding loan amount
+    :type loan_amt: float
+    :param years: number of years in the loan
+    :type months: int
+    :param int_rate: fixed interest rate at start of the loan
+    :type int_rate: float
 
-    Returns:
-    -------
-    - pay_h - monthly total payment to bank
-    - interest_h - monthly interest component to bank
-    - principal_h - monthly principal component to bank
-    - month_h - month of payment in numbers 1, 2, 3... etc.
-    - out_principal_h - outstanding principal after current monthly payment
+    :return: [pay_h, interest_h, principal_h, month_h, out_principal_h] -
+        list containing monthly total payment to bank, monthly interest
+        component to bank, monthly principal component to bank, month of
+        payment in numbers 1, 2, 3... etc, outstanding principal after
+        current monthly payment
+    :rtype: list
     '''
 
     pay_h = []
@@ -169,7 +186,7 @@ def calc_schedule(loan_amt, years, int_rate):
 
     # iterate through the life of loan
     for months in range(1, years*12 + 1):
-        payment, interest, principal = \
+        [payment, interest, principal] = \
             calc_mon_payment(outstanding_principal,
                              years*12 - months + 1, int_rate)
 
@@ -189,7 +206,7 @@ def calc_schedule(loan_amt, years, int_rate):
         if outstanding_principal <= 0:
             break
 
-    return pay_h, interest_h, principal_h, month_h, out_principal_h
+    return [pay_h, interest_h, principal_h, month_h, out_principal_h]
 
 
 def main():
@@ -199,7 +216,8 @@ def main():
     are home value, down payment, loan term, interest rate, monthly HOA,
     property tax and home insurance which are roughly based on the property
     tax rates (1.25%). The monthly schedule of payments are output to an
-    excel file.'''
+    excel file.
+    '''
 
     # home value
     home_val = float(input('Home value (Million): '))
@@ -228,7 +246,7 @@ def main():
     print('-'*80)
     print('calculating schedule of payments month over month...')
     print('-'*80)
-    pay_h, interest_h, principal_h, month_h, out_principal_h = \
+    [pay_h, interest_h, principal_h, month_h, out_principal_h] = \
         calc_schedule(loan_amt, years, int_rate)
 
     # total monthly payment is sum of payment, hoa, home ins and prop tax
