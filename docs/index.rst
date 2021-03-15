@@ -5,8 +5,7 @@ Mortgage Calculator's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   modules
-   payments
+   source/modules
    README
    LICENSE
 
