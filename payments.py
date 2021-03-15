@@ -9,10 +9,10 @@ __email__ = 'arunmano121@outlook.com'
 import xlsxwriter
 
 
-def write_excel(title, month, interest, principal, out_principal,
-                mon_hoa, mon_home_ins, mon_prop_tax, mon_payment,
+def write_excel(title, month, interest, principal, out_prin,
+                mon_hoa, mon_home_ins, mon_prop_tax, mon_pay,
                 home_val, down_pay, loan_amt,
-                tot_int, tot_prop_tax, tot_home_ins, tot_hoa, tot_payment,
+                tot_int, tot_prop_tax, tot_home_ins, tot_hoa, tot_pay,
                 int_loan_rat, int_7yr, int_7yr_tot_rat, out_prin_7yr):
     '''
     write out payment schedule into excel sheet
@@ -25,16 +25,16 @@ def write_excel(title, month, interest, principal, out_principal,
     :type interest: float
     :param principal: principal component of the monthly payment
     :type principal: float
-    :param out_principal: outstanding principal component owed to bank
-    :type out_principal: float
+    :param out_prin: outstanding principal component owed to bank
+    :type out_prin: float
     :param mon_hoa: monthly HOA and Mello-Roos fees
     :type mon_hoa: float
     :param mon_home_ins: monthly home insurance
     :type mon_home_ins: float
     :param mon_prop_tax: monthly property tax
     :type mon_prop_tax: float
-    :param mon_payment: total monthly payment
-    :type mon_payment: float
+    :param mon_pay: total monthly payment
+    :type mon_pay: float
     :param home_val: value of home
     :type home_val: float
     :param down_pay: downpayment at time of purchase
@@ -49,8 +49,8 @@ def write_excel(title, month, interest, principal, out_principal,
     :type tot_home_ins: float
     :param tot_hoa: total HOA and Mello-Roos over life of loan
     :type tot_hoa: float
-    :param tot_payment: total payment over life of loan
-    :type tot_payment: float
+    :param tot_pay: total payment over life of loan
+    :type tot_pay: float
     :param int_loan_rat: interest to loan amount ratio
     :type int_loan_rat: float
     :param int_7yr: interest paid over the first 7 years of loan
@@ -90,8 +90,8 @@ def write_excel(title, month, interest, principal, out_principal,
         worksheet.write(i + 2, 3, mon_hoa, money)
         worksheet.write(i + 2, 4, mon_home_ins, money)
         worksheet.write(i + 2, 5, mon_prop_tax, money)
-        worksheet.write(i + 2, 6, mon_payment, money)
-        worksheet.write(i + 2, 7, out_principal[i], money)
+        worksheet.write(i + 2, 6, mon_pay, money)
+        worksheet.write(i + 2, 7, out_prin[i], money)
 
     worksheet.write('J1', 'Home Value', fmt)
     worksheet.write('J2', 'Down Payment', fmt)
@@ -113,7 +113,7 @@ def write_excel(title, month, interest, principal, out_principal,
     worksheet.write('K5', tot_prop_tax, money)
     worksheet.write('K6', tot_home_ins, money)
     worksheet.write('K7', tot_hoa, money)
-    worksheet.write('K8', tot_payment, money)
+    worksheet.write('K8', tot_pay, money)
     worksheet.write('K9', int_loan_rat/100, pct)
     worksheet.write('K11', int_7yr, money)
     worksheet.write('K12', int_7yr_tot_rat/100, pct)
@@ -125,12 +125,12 @@ def write_excel(title, month, interest, principal, out_principal,
     return
 
 
-def calc_mon_payment(outstanding_principal, months, int_rate):
+def calc_mon_pay(out_prin, months, int_rate):
     '''
     calculate monthly payment including interest and principal
 
-    :param outstanding_principal: outstanding principal amount owed to bank
-    :type outstanding_principal: float
+    :param out_prin: outstanding principal amount owed to bank
+    :type out_prin: float
     :param months: number of remaining months in loan
     :type months: int
     :param int_rate: fixed interest rate
@@ -144,11 +144,11 @@ def calc_mon_payment(outstanding_principal, months, int_rate):
 
     # monthly payment not including home ins and property tax and HOA
     # this only includes the loan amount based payment that is due to bank
-    payment = (outstanding_principal * (int_rate / (12 * 100)) /
+    payment = (out_prin * (int_rate / (12 * 100)) /
                (1 - (1 + int_rate / (12 * 100))**(-months)))
 
     # interest component
-    interest = (int_rate/(12 * 100))*outstanding_principal
+    interest = (int_rate/(12 * 100))*out_prin
 
     # principal component
     principal = payment - interest
@@ -167,7 +167,7 @@ def calc_schedule(loan_amt, years, int_rate):
     :param int_rate: fixed interest rate at start of the loan
     :type int_rate: float
 
-    :return: [pay_h, interest_h, principal_h, month_h, out_principal_h] -
+    :return: [pay_h, int_h, prin_h, month_h, out_prin_h] -
         list containing monthly total payment to bank, monthly interest
         component to bank, monthly principal component to bank, month of
         payment in numbers 1, 2, 3... etc, outstanding principal after
@@ -176,37 +176,37 @@ def calc_schedule(loan_amt, years, int_rate):
     '''
 
     pay_h = []
-    interest_h = []
-    principal_h = []
+    int_h = []
+    prin_h = []
     month_h = []
-    out_principal_h = []
+    out_prin_h = []
 
     # at the very start, the outstanding principal is the loan amount
-    outstanding_principal = loan_amt
+    out_prin = loan_amt
 
     # iterate through the life of loan
     for months in range(1, years*12 + 1):
         [payment, interest, principal] = \
-            calc_mon_payment(outstanding_principal,
-                             years*12 - months + 1, int_rate)
+            calc_mon_pay(out_prin,
+                         years*12 - months + 1, int_rate)
 
         # outstanding principal reduces every month
-        outstanding_principal = outstanding_principal - principal
+        out_prin = out_prin - principal
         # print(months, payment, interest, principal)
 
         # append the monthly breakdown into the arrays
         pay_h.append(payment)
-        interest_h.append(interest)
-        principal_h.append(principal)
+        int_h.append(interest)
+        prin_h.append(principal)
         month_h.append(months)
-        out_principal_h.append(outstanding_principal)
+        out_prin_h.append(out_prin)
 
         # when the loan is paid off - stop looping, this is relevant when
         # there is additional monthly payments
-        if outstanding_principal <= 0:
+        if out_prin <= 0:
             break
 
-    return [pay_h, interest_h, principal_h, month_h, out_principal_h]
+    return [pay_h, int_h, prin_h, month_h, out_prin_h]
 
 
 def main():
@@ -243,19 +243,19 @@ def main():
     mon_home_ins = home_val * prop_tax / 100 / 10 / 12
 
     # calculate the schedule of payments
-    print('-'*80)
+    print('-'*60)
     print('calculating schedule of payments month over month...')
-    print('-'*80)
-    [pay_h, interest_h, principal_h, month_h, out_principal_h] = \
+    print('-'*60)
+    [pay_h, int_h, prin_h, month_h, out_prin_h] = \
         calc_schedule(loan_amt, years, int_rate)
 
     # total monthly payment is sum of payment, hoa, home ins and prop tax
-    mon_payment = pay_h[0] + \
+    mon_pay = pay_h[0] + \
         mon_hoa + mon_home_ins + mon_prop_tax
-    print('Monthly payment: $%0.2f' % (mon_payment))
+    print('Monthly payment: $%0.2f' % (mon_pay))
 
     # total interest over the life of loan
-    tot_int = sum(interest_h)
+    tot_int = sum(int_h)
     print('Total interest payment over %d months: $%0.2f' %
           (years*12, tot_int))
 
@@ -275,16 +275,16 @@ def main():
           (years*12, tot_hoa))
 
     # total payment over the life of loan
-    tot_payment = down_pay + years*12*mon_payment
+    tot_pay = down_pay + years*12*mon_pay
     print('Total payment over the %d months: $%0.2f' %
-          (years*12, tot_payment))
+          (years*12, tot_pay))
 
     # ratio of interest to money borrowed from bank
     int_loan_rat = tot_int/loan_amt*100
     print('Interest-Loan Ratio: %0.2f%%' % (int_loan_rat))
 
     # interest that is paid over the first 7 years
-    int_7yr = sum(interest_h[0:7*12])
+    int_7yr = sum(int_h[0:7*12])
     print('Interest paid over the first 7 years: $%0.2f' % (int_7yr))
 
     # Proportion of interest that is paid over the first 7 years
@@ -293,13 +293,13 @@ def main():
           (int_7yr_tot_rat))
 
     # Outstanding principal after first 7 years
-    out_prin_7yr = out_principal_h[7*12-1]
+    out_prin_7yr = out_prin_h[7*12-1]
     print('Outstanding principal after 7 years: $%0.2f' % (out_prin_7yr))
 
     # write the breakdown into excel file
-    print('-'*80)
+    print('-'*60)
     print('writing out payment schedule into excel sheet...')
-    print('-'*80)
+    print('-'*60)
 
     # title for the excel file
     title = 'schedule_' + \
@@ -309,10 +309,11 @@ def main():
         str(int_rate) + '%int' + \
         '.xlsx'
 
-    write_excel(title, month_h, interest_h, principal_h, out_principal_h,
-                mon_hoa, mon_home_ins, mon_prop_tax, mon_payment,
+    # todo: condense necessary items to be written into excel using dict
+    write_excel(title, month_h, int_h, prin_h, out_prin_h,
+                mon_hoa, mon_home_ins, mon_prop_tax, mon_pay,
                 home_val, down_pay, loan_amt,
-                tot_int, tot_prop_tax, tot_home_ins, tot_hoa, tot_payment,
+                tot_int, tot_prop_tax, tot_home_ins, tot_hoa, tot_pay,
                 int_loan_rat, int_7yr, int_7yr_tot_rat, out_prin_7yr)
 
 
